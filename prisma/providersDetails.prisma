@@ -1,0 +1,17 @@
+model ProviderDetails {
+  id          String    @id @default(uuid())
+  providerId  String    @unique 
+  contact     String
+  email       String    @unique
+  deliveryFee Float
+  openingHours Json?
+  isOpen     Boolean   @default(true)
+  logoUrl    String?
+  bannerUrl  String?
+  updatedAt  DateTime  @updatedAt
+  minOrderAmount Float   @default(0.0)
+
+  provider    Provider  @relation(fields: [providerId], references: [id])
+  @@map("provider_details")
+  @@index([providerId])
+}

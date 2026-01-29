@@ -1,0 +1,16 @@
+model Review{
+    reviewId    String   @id @default(uuid())
+    orderId     String 
+    customerId  String
+    providerId  String
+    rating      Int 
+    comment     String?
+    createdAt   DateTime @default(now())
+
+    // customer    User     @relation(fields: [customerId], references: [id])
+    provider    Provider @relation(fields: [providerId], references: [id])
+    order       Order    @relation(fields: [orderId], references: [orderId])
+
+    @@index([customerId])
+    @@index([providerId])
+}

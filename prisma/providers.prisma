@@ -1,0 +1,19 @@
+model Provider {
+  id          String    @id @default(uuid())
+  providerId  String    
+  restaurantName  String   @unique
+  description      String    
+  cuisineType String
+  address     String
+  isApproved  Boolean   @default(false)
+  rating      Float     @default(0.0)
+  totalReviews Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  @@index([restaurantName])
+  @@map("providers")
+  providerDetails ProviderDetails[]
+  orders Order[]
+  meals Meal[]
+  reviews Review[]
+}

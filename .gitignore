@@ -1,5 +1,6 @@
 node_modules
 dist
-.generated
+generated
 .env
-/generated/prisma
+.DS_Store
+prisma/migrations
