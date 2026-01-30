@@ -12,3 +12,254 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model cartItem {
+  id        String   @id @default(uuid())
+  cartId    String
+  mealId    String
+  quantity  Int
+  addedAt   DateTime @default(now())
+  unitPrice Float
+  subtotal  Float
+  cart      Cart     @relation(fields: [cartId], references: [cartId])
+  meal      Meal     @relation(fields: [mealId], references: [mealId])
+
+  @@index([cartId])
+  @@map("cart_items")
+}
+
+model Cart {
+  cartId     String   @id @default(uuid())
+  customerId String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  cartItems cartItem[]
+  customer  User     @relation(fields: [customerId], references: [id])
+  @@map("carts")
+}
+
+model Category {
+  categoryId String   @id @default(uuid())
+  name       String   @unique
+  createdAt  DateTime @default(now())
+
+  meals Meal[]
+
+  @@map("categories")
+}
+
+model Meal {
+  mealId       String   @id @default(uuid())
+  providerId   String
+  categoryId   String
+  name         String
+  description  String
+  price        Float
+  imageUrl     String?
+  isAvailable  Boolean  @default(true)
+  diaetaryTags String[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  provider     Provider @relation(fields: [providerId], references: [id])
+  category     Category @relation(fields: [categoryId], references: [categoryId])
+
+  orderItems OrderItem[]
+
+  cartItems cartItem[]
+
+  @@index([providerId, name])
+  @@map("meals")
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  mealId    String
+  quantity  Int
+  unitPrice Float
+  subtotal  Float
+
+  order Order @relation(fields: [orderId], references: [orderId])
+  meal  Meal  @relation(fields: [mealId], references: [mealId])
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model Order {
+  orderId         String        @id @default(uuid())
+  customerId      String
+  providerId      String
+  totalAmount     Float
+  deliveryAddress String
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentMethod   PaymentMethod @default(CASH_ON_DELIVERY)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  provider        Provider      @relation(fields: [providerId], references: [id])
+  
+  customer        User          @relation(fields: [customerId], references: [id])
+  orderItems OrderItem[]
+  reviews    Review[]
+
+  @@index([customerId])
+  @@index([orderId])
+  @@map("orders")
+}
+
+enum Role {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum PaymentMethod {
+  CASH_ON_DELIVERY
+  CREDIT_CARD
+  DIGITAL_WALLET
+}
+
+model Provider {
+  id             String   @id @default(uuid())
+  providerId     String   @unique
+  provider       User     @relation(fields: [providerId], references: [id])
+  restaurantName String   @unique
+  description    String
+  cuisineType    String
+  address        String
+  contact        String
+  email          String   @unique
+  deliveryFee    Float
+  openingHours   Json?
+  isOpen         Boolean  @default(true)
+  logoUrl        String?
+  bannerUrl      String?
+  updatedAt      DateTime @updatedAt
+  minOrderAmount Float    @default(0.0)
+  isApproved     Boolean  @default(false)
+  rating         Float    @default(0.0)
+  totalReviews   Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  orders          Order[]
+  meals           Meal[]
+  reviews         Review[]
+
+  @@index([restaurantName])
+  @@map("providers")
+}
+
+// model ProviderDetails {
+//   id             String   @id @default(uuid())
+//   providerId     String   @unique
+//   contact        String
+//   email          String   @unique
+//   deliveryFee    Float
+//   openingHours   Json?
+//   isOpen         Boolean  @default(true)
+//   logoUrl        String?
+//   bannerUrl      String?
+//   updatedAt      DateTime @updatedAt
+//   minOrderAmount Float    @default(0.0)
+
+//   provider Provider @relation(fields: [providerId], references: [id])
+
+//   @@map("provider_details")
+//   @@index([providerId])
+// }
+
+model Review {
+  reviewId   String   @id @default(uuid())
+  orderId    String
+  customerId String
+  providerId String
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  customer    User     @relation(fields: [customerId], references: [id])
+  provider Provider @relation(fields: [providerId], references: [id])
+  order    Order    @relation(fields: [orderId], references: [orderId])
+
+  @@index([customerId])
+  @@index([providerId])
+  @@map("reviews")
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  role        String? @default("CUSTOMER")
+  phoneNumber String?
+  address     String?
+
+  @@unique([email])
+  @@map("users")
+  reviews Review[]
+  orders Order[]
+  carts Cart[]
+  providers Provider[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verifications")
+}

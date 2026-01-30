@@ -4,3 +4,4 @@ generated
 .env
 .DS_Store
 prisma/migrations
+modules

@@ -1,9 +1,0 @@
-model Cart {
-    cartId     String   @id @default(uuid())
-    customerId     String   @unique
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
-
-    cartItems  cartItem[]
-    // user       User     @relation(fields: [customerId], references: [id])
-}

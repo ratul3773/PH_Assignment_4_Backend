@@ -1,7 +1,0 @@
-model Category {
-    categoryId   String   @id @default(uuid())
-    name         String   @unique
-    createdAt    DateTime @default(now())
-
-    meals        Meal[]
-}
