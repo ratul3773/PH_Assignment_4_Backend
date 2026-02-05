@@ -6,6 +6,7 @@ import { CategoryRouter } from "./modules/Category/category.route";
 import { MealRouter } from "./modules/Meal/meal.route";
 import { CustomerRouter } from "./modules/Customer/customer.route";
 import { ProviderRouter } from "./modules/Provider/provider.route";
+import { CartRoute } from "./modules/Cart/cart.route";
 
 
 const app = express();
@@ -16,6 +17,7 @@ app.use("/api/users", CustomerRouter)
 app.use("/api/meals", MealRouter)
 app.use("/api/categories", CategoryRouter)
 app.use("/api/providers", ProviderRouter)
+app.use("/api/cart", CartRoute);
 
 
 export { app };
