@@ -40,8 +40,8 @@ const auth = (...roles: UserRole[])=>{
                 });
             };
             next();
-        } catch (error) {
-            return res.status(500).json({ message: "Internal Server Error" });
+        } catch (err: any) {
+            return res.status(500).json({ message:err.message });
         }
     }
 }

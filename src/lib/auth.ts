@@ -9,49 +9,49 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false, // Use true for port 465, false for port 587
   auth: {
-    user: process.env.APP_USER ,
-    pass: process.env.APP_PASS ,
+    user: process.env.APP_USER,
+    pass: process.env.APP_PASS,
   },
 });
 
 export const auth = betterAuth({
-    database: prismaAdapter(prisma, {
-        provider: "postgresql",
-    }),
-    trustedOrigins:[process.env.TRUSTED_ORIGINS || "http://localhost:4000"],
-    user:{
-        additionalFields:{
-            role:{
-                type: "string",
-                defaultValue: "CUSTOMER",
-                required: false
-            },
-            phoneNumber:{
-                type: "string",
-                required: false
-            },
-            address:{
-                type: "string",
-                required: false
-            }
-        }
-    },
-    emailAndPassword: { 
-        enabled: true,
-        autoSignIn: false,
-        requireEmailVerification: true
-  }, 
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
+  trustedOrigins: [process.env.TRUSTED_ORIGINS || "http://localhost:4000"],
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        defaultValue: "CUSTOMER",
+        required: false,
+      },
+      phoneNumber: {
+        type: "string",
+        required: false
+      },
+      address: {
+        type: "string",
+        required: false
+      }
+    }
+  },
+  emailAndPassword: {
+    enabled: true,
+    autoSignIn: false,
+    requireEmailVerification: true
+  },
 
   emailVerification: {
     autoSignInAfterVerification: true,
     sendOnSignUp: true,
-    sendVerificationEmail: async ( { user, url, token }, request) => {
-    const verificationUrl = `${process.env.TRUSTED_ORIGINS}/api/auth/verify-email?token=${token}`;
-    const info = await transporter.sendMail({
-    from: `"FoodApp" <PrismaFoodApp@gmail.com>`,
-    to: user.email,
-    subject: "Verify your email for FoodApp 🍔",
-    html: `<!DOCTYPE html>
+    sendVerificationEmail: async ({ user, url, token }, request) => {
+      const verificationUrl = `${process.env.TRUSTED_ORIGINS}/api/auth/verify-email?token=${token}`;
+      const info = await transporter.sendMail({
+        from: `"FoodApp" <PrismaFoodApp@gmail.com>`,
+        to: user.email,
+        subject: "Verify your email for FoodApp 🍔",
+        html: `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8" />
@@ -132,9 +132,9 @@ export const auth = betterAuth({
   </table>
 </body>
 </html>`,
-  });
+      });
 
-  console.log("Message sent:", info.messageId);
+      console.log("Message sent:", info.messageId);
     },
   },
 });
